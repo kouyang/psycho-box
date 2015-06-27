@@ -7,7 +7,7 @@ app_secret = os.environ['APP_SECRET']
 access_token = os.environ['ACCESS_TOKEN']
 
 client = dropbox.client.DropboxClient(access_token)
-
+has_kept = False
 
 def print_json(data):
     print json.dumps(data, indent=4, separators=(',', ': '))
@@ -18,31 +18,56 @@ def delete(f):
 
 def up():
     # TODO (need to worry about pwd)
-    return
+    has_kept = False
+    p = path.popleft()
+    while files and 'fake' not in files.popleft():
+        continue
+    files.appendleft(p)
 
-def down(path):
-    data = client.metadata(path)
-    files.extendleft(data['contents'])
+def down(f):
+    # TODO if they emptied a folder, then put the folder back in queue
+    has_kept = False
+    data = client.metadata(f['path'] + '/')
+    path.appendleft(f)
+
+    fake = f.copy()
+    fake['fake'] = True
+    files.appendleft(fake)
+    files.extendleft(reversed(data['contents']))
+
+def empty(f):
+    return not client.metadata(f['path'] + '/')['contents']
 
 def main():
-    pwd = '/'
+    pwd = '/louise/'
     root_data = client.metadata(pwd)
 
     global files
+    global path
     files = deque(root_data['contents'])
+    path = deque()
+
+    has_kept = False
 
     while files:
         f = files.popleft()
-        print_json(f)
+        if ('fake' in f):
+            if not has_kept:
+                files.appendleft(path.popleft())
+            continue
+        else:
+            print_json(f)
+            print 'has_kept: %r' % has_kept
+
         action = raw_input('')
         if action == 'a':
             delete(f['path'])
         elif action == 'd':
-            continue
+            has_kept = True
         elif action == 'w':
             up()
-        elif action == 's' and f['is_dir']:
-            down(f['path'] + '/')
+        elif action == 's' and f['is_dir'] and not empty(f):
+            down(f)
         elif not action:
             return
         print ''
