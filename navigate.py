@@ -1,19 +1,19 @@
-# Include the Dropbox SDK
-import os, dropbox, json
+import json, os
+import dropbox
+from collections import deque
 
-# Get your app key and secret from the Dropbox developer website
 app_key = os.environ['APP_KEY']
 app_secret = os.environ['APP_SECRET']
 access_token = os.environ['ACCESS_TOKEN']
 
 global pwd
 
-def pj(data):
+def print_json(data):
     print json.dumps(data, indent=4, separators=(',', ': '))
 
-def delete(file):
-    print 'deleting ' + file['path']
-    client.file_delete(file['path'])
+def delete(f):
+    print 'deleting ' + f['path']
+    client.file_delete(f['path'])
 
 def up():
     # TODO
@@ -28,23 +28,23 @@ def main():
     client = dropbox.client.DropboxClient(access_token)
     pwd = '/'
     root_data = client.metadata(pwd)
-    pj(root_data)
 
+    files = deque(root_data['contents'])
 
-
-    for file in root_data['contents']:
-        if not 'magnum' in file['path']:
-            continue
-        pj(file)
+    while files:
+        f = files.popleft()
+        print_json(f)
         action = raw_input('')
         if action == 'a':
-            delete(file)
+            delete(f)
         elif action == 'd':
             continue
         elif action == 'w':
             up()
         elif action == 's':
             down()
+        elif not action:
+            return
         print ''
 
 main()
