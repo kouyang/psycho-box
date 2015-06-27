@@ -20,10 +20,14 @@ def delete(f):
     print 'deleting ' + f
     client.file_delete(f)
 
-def up():
+def up(f):
     # TODO (need to worry about pwd)
     global has_kept
     has_kept = False
+
+    if not path:
+        files.appendleft(f)
+        return
     p = path.popleft()
     while files and 'fake' not in files.popleft():
         continue
@@ -71,7 +75,7 @@ def main():
         elif action == 'd':
             keep()
         elif action == 'w':
-            up()
+            up(f)
         elif action == 's' and f['is_dir'] and not empty(f):
             down(f)
         elif not action:
