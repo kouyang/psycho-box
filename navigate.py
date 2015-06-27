@@ -12,12 +12,17 @@ has_kept = False
 def print_json(data):
     print json.dumps(data, indent=4, separators=(',', ': '))
 
+def keep():
+    global has_kept
+    has_kept = True
+
 def delete(f):
     print 'deleting ' + f
     client.file_delete(f)
 
 def up():
     # TODO (need to worry about pwd)
+    global has_kept
     has_kept = False
     p = path.popleft()
     while files and 'fake' not in files.popleft():
@@ -26,6 +31,7 @@ def up():
 
 def down(f):
     # TODO if they emptied a folder, then put the folder back in queue
+    global has_kept
     has_kept = False
     data = client.metadata(f['path'] + '/')
     path.appendleft(f)
@@ -47,6 +53,7 @@ def main():
     files = deque(root_data['contents'])
     path = deque()
 
+    global has_kept
     has_kept = False
 
     while files:
@@ -57,13 +64,12 @@ def main():
             continue
         else:
             print_json(f)
-            print 'has_kept: %r' % has_kept
 
         action = raw_input('')
         if action == 'a':
             delete(f['path'])
         elif action == 'd':
-            has_kept = True
+            keep()
         elif action == 'w':
             up()
         elif action == 's' and f['is_dir'] and not empty(f):
