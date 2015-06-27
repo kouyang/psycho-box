@@ -1,0 +1,46 @@
+
+
+/********* index.html stylesheet ********/
+.homebody {
+    background:url('http://media.glassdoor.com/o/cb/3e/2c/ff/sunlit-cafe.jpg') no-repeat center center;
+
+    /* Ensure the html element always takes up the full height of the browser window */
+    min-height:100%;
+
+    /* The Magic */
+    background-size:cover;
+}
+.connect-to-dropbox {
+    padding-top: 20%;
+}
+
+.title {
+    padding-top: 10%;
+    font-size: 60px;
+    color: black;
+}
+
+.copyright {
+    padding-top: 30%;
+    float: bottom;
+}
+
+.set-as-root {
+    padding-top: 55%;
+}
+
+.half-title {
+    padding-top: 20%;
+    font-size: 42px;
+}
+
+.preview {
+    margin-top: 24px;
+}
+
+.upto {
+    margin-top: 24px;
+}
+.btn-no-shadow {
+    box-shadow: none;
+}
