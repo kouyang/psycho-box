@@ -14,12 +14,13 @@
     <script type="text/javascript" src="/statis/js/dropbox.js"></script>
     <script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" 
     	id="dropboxjs" 
-    	data-app-key="egb2ixz3wjqdab0"></script>
+    	data-app-key="uwkco8vvvnecigh"></script>
     <script>
     	options = {
 	        // Required. Called when a user selects an item in the Chooser.
 	        success: function(files) {
-	            alert("Here's the file link: " + files[0].link)
+	            //alert("Here's the file link: " + files[0].link)
+	            window.location.href = '/templates/swipe.html';
 	        },
 	    
 	        // Optional. Called when the user closes the dialog without selecting a file
@@ -35,13 +36,12 @@
 	    
 	        // Optional. A value of false (default) limits selection to a single file, while
 	        // true enables multiple file selection.
-	        multiselect: false, // or true
+	        multiselect: true, // or true
 	    
 	        // Optional. This is a list of file extensions. If specified, the user will
 	        // only be able to select files with these extensions. You may also specify
 	        // file types, such as "video" or "images" in the list. For more information,
 	        // see File types below. By default, all extensions are allowed.
-	        extensions: ['.pdf', '.doc', '.docx'],
 	    };
     </script>
 </head>
