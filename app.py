@@ -1,53 +1,109 @@
-import os
-import urlparse
-
-from dropbox.client import DropboxClient, DropboxOAuth2Flow
-from flask import abort, Flask, redirect, render_template, request, session, url_for
-
-# App key and secret from the App console (dropbox.com/developers/apps)
-APP_KEY = os.environ['APP_KEY']
-APP_SECRET = os.environ['APP_SECRET']
-ACCESS_TOKEN = os.environ['ACCESS_TOKEN']
+from flask import Flask
+from flask import render_template
+from flask import jsonify
+import json, os
+import dropbox
+from collections import deque
 
 app = Flask(__name__)
-app.config['DEBUG'] = os.environ['DEBUG'] == 'True'
 
-# A random secret used by Flask to encrypt session data cookies
-app.secret_key = os.environ['FLASK_SECRET_KEY']
+app_key = os.environ['APP_KEY']
+app_secret = os.environ['APP_SECRET']
+access_token = os.environ['ACCESS_TOKEN']
 
-def get_url(route):
-    '''Generate a proper URL, forcing HTTPS if not running locally'''
-    host = urlparse.urlparse(request.url).hostname
-    url = url_for(route,
-                  _external=True,
-                  _scheme='http' if host in ('127.0.0.1', 'localhost') else
-                  'https')
-    return url
-
-
-def get_flow():
-    return DropboxOAuth2Flow(APP_KEY, APP_SECRET, get_url('oauth_callback'),
-                             session, 'dropbox-csrf-token')
-
+client = dropbox.client.DropboxClient(access_token)
+has_kept = False
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
+@app.route('/swipe')
+def swipe():
+    return render_template('swipe.html')
 
-@app.route('/login')
-def login():
-    return redirect(get_flow().start())
+@app.route('/begin')
+def begin():
+    pwd = '/'
+    root_data = client.metadata(pwd)
 
+    global files
+    files = deque(root_data['contents'])
+    global path
+    path = deque()
 
-@app.route('/oauth_callback')
-def oauth_callback():
-    '''Callback function for when the user returns from OAuth.'''
-    access_token, uid, extras = get_flow().finish(request.args)
-    client = DropboxClient(ACCESS_TOKEN)
+    global has_kept
+    has_kept = False
 
-    return render_template('done.html', display_name=client.account_info()['display_name'])
+    global f
+    f = files.popleft()
+    if ('fake' in f):
+        global f
+        f = path.popleft()
+    return jsonify(f)
 
+@app.route('/delete')
+def delete():
+    client.file_delete(f['path'])
+
+    global f
+    f = files.popleft()
+    if ('fake' in f):
+        global f
+        f = path.popleft()
+    return jsonify(f)
+
+@app.route('/keep')
+def keep():
+    global has_kept
+    has_kept = True
+
+    global f
+    global files
+    f = files.popleft()
+    if ('fake' in f):
+        global f
+        f = path.popleft()
+    return jsonify(f)
+
+@app.route('/up')
+def up():
+    global has_kept
+    has_kept = False
+
+    if not path:
+        files.appendleft(f)
+        return
+    p = path.popleft()
+    while files and 'fake' not in files.popleft():
+        continue
+    files.appendleft(p)
+
+    global f
+    f = files.popleft()
+    if ('fake' in f):
+        global f
+        f = path.popleft()
+    return jsonify(f)
+
+@app.route('/down')
+def down():
+    global has_kept
+    has_kept = False
+    data = client.metadata(f['path'] + '/')
+    path.appendleft(f)
+
+    fake = f.copy()
+    fake['fake'] = True
+    files.appendleft(fake)
+    files.extendleft(reversed(data['contents']))
+
+    global f
+    f = files.popleft()
+    if ('fake' in f):
+        global f
+        f = path.popleft()
+    return jsonify(f)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
