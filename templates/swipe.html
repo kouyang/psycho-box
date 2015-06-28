@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Soji | Tinder for files</title>
+	<title>soji | clean up your files</title>
 	<!-- font-awesome -->
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 	<!-- css -->
@@ -115,11 +115,7 @@
 
 <body class="container">
     <div class="row">
-        <div class="col-md-3">
-            <div class="upto pull-right">
-            <i class="fa fa-arrow-circle-o-up fa-5x"></i>
-            </div>
-        </div>
+        <div class="col-md-3"></div>
         <div class="col-md-6">
             <div class="well preview">
                 <div class="text-center">
@@ -134,8 +130,13 @@
                     <br>Last modified: <span id="modified"></span>
                     <div class="text-center">
                         <div class="pull-center">
-                            <a class="btn btn-default btn-no-shadow" id="up">up/to parent folder</a>
-                            <a class="btn btn-default btn-no-shadow" id="down">down/enter folder</a>
+                            <a class="btn btn-default btn-no-shadow" id="up">
+                              <i class="fa fa-arrow-up"></i>
+                              &nbsp;&nbsp;to parent folder</a>
+                            <a class="btn btn-default btn-no-shadow" id="down">
+                              enter folder&nbsp;&nbsp;
+                              <i class="fa fa-arrow-down"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -143,8 +144,8 @@
             <div class="text-center">
                 <!-- bottom buttons here -->
                 <div class="btn-group btn-group-justified">
-                  <a class="btn btn-danger btn-no-shadow" id="left">left/delete</a>
-                  <a class="btn btn-default btn-no-shadow" data-toggle="modal" data-target="#myModal" id="right">right/keep</a>
+                  <a class="btn btn-danger btn-no-shadow" id="left"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;delete</a>
+                  <a class="btn btn-default btn-no-shadow" id="right">right &nbsp;&nbsp;<i class="fa fa-arrow-right"></i></a>
                 </div>
             </div>
         </div>
